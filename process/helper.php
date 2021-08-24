@@ -1,5 +1,5 @@
 <?php
-require_once "../config/dbconfig.php";
+//require_once "../config/dbconfig.php";
 function checkFileExistence(string $filename): bool
 {
     $file = "";
@@ -7,7 +7,7 @@ function checkFileExistence(string $filename): bool
     global $connection;
     if(isset($connection))
     {
-        if ($statement = $connection->prepare("select file_name from images where file_name = ?"))
+        if ($statement = $connection->prepare("select file_filename from uploads where file_filename = ?"))
         {
             if ($statement->bind_param('s', $filename))
             {
@@ -26,3 +26,5 @@ function checkFileExistence(string $filename): bool
     }
     return $is_Exists;
 }
+
+

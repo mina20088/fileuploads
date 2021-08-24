@@ -1,6 +1,7 @@
 <?php
 include "config/dbconfig.php";
-header('content-type:application/json');
+header('Access-Control-Allow-Methods:GET');
+//header('content-type:application/pdf');
 if(isset($connection))
 {
     $id = $_GET['id'];

@@ -6,7 +6,7 @@ require_once '../process/helper.php';
 
 if(isset($_POST['submit']))
 {
-    $acceptableFiles = ['pdf'];
+    $acceptableFiles = ['pdf','jpg','jpeg'];
     if(!empty($_FILES['file']['name']))
     {
         if(in_array(pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION),$acceptableFiles))
@@ -22,29 +22,37 @@ if(isset($_POST['submit']))
                         $filesize = intval($_FILES['file']['size']);
                         $filedata = file_get_contents(addslashes($_FILES['file']['tmp_name']));
                         $fileEXTENSION = pathinfo($_FILES['file']['name'],PATHINFO_EXTENSION);
-                        $query = "insert into uploads(file_filename, file_type, file_Extension, file_size, file_data) values (?,?,?,?,?)";
-                        if($statement = $connection->prepare($query))
+                        if(checkFileExistence($filename))
                         {
-                            if($statement->bind_param('sssis',$filename,$filetype,$fileEXTENSION,$filesize,$filedata))
+                            $_SESSION['response'] = "file already exist in our database";
+                        }
+                        else
+                        {
+                            $query = "insert into uploads(file_filename, file_type, file_Extension, file_size, file_data) values (?,?,?,?,?)";
+                            if($statement = $connection->prepare($query))
                             {
-                                if($statement->execute())
+                                if($statement->bind_param('sssis',$filename,$filetype,$fileEXTENSION,$filesize,$filedata))
                                 {
-                                    $_SESSION['response'] = "file uploaded successfully";
+                                    if($statement->execute())
+                                    {
+                                        $_SESSION['response'] = "file uploaded successfully";
+                                    }
+                                    else
+                                    {
+                                        $_SESSION['response'] = $connection->error;
+                                    }
                                 }
                                 else
                                 {
-                                    $_SESSION['response'] = $connection->error;
+                                    $_SESSION['response'] = "there is an error uploading the file";
                                 }
                             }
                             else
                             {
-                                $_SESSION['response'] = "there is an error uploading the file";
+                                $_SESSION['response'] = "there is a statement Error" . $connection->error;
                             }
                         }
-                        else
-                        {
-                            $_SESSION['response'] = "there is a statement Error" . $connection->error;
-                        }
+
                     }
                     else
                     {
@@ -66,7 +74,7 @@ if(isset($_POST['submit']))
         }
         else
         {
-            $_SESSION['response'] = "only pdf allowed";
+            $_SESSION['response'] = "only pdf,jpg,jpeg allowed";
             header("location:../index.php");
         }
     }
